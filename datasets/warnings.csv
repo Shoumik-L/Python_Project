@@ -1,0 +1,12 @@
+warn_id,dis_id,region,status,issue_date,expiry_date
+W001,D001,Mumbai,Active,2025-06-05,2025-06-15
+W002,D002,Odisha,Expired,2025-07-15,2025-07-25
+W003,D003,Delhi,Active,2025-08-10,2025-08-20
+W004,D004,Himachal Pradesh,Expired,2025-04-20,2025-04-30
+W005,D007,Tamil Nadu,Inactive,2025-10-01,2025-10-12
+W006,D012,Assam,Expired,2025-06-20,2025-06-29
+W007,D014,Nepal Border,Active,2025-09-15,2025-09-22
+W008,D017,Kerala,Active,2025-09-07,2025-09-17
+W009,D020,Kashmir,Active,2025-11-18,2025-11-28
+W010,D009,Hadapsar,Active,2025-05-25,2025-06-02
+W011,D021,Banglore,Active,2025-12-02,2025-12-31

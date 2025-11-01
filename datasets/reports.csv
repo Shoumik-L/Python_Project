@@ -1,0 +1,14 @@
+report_id,user_id,disaster_type,region,description,status
+R001,U001,Flood,Mumbai,Water level rising near suburbs,Pending
+R002,U004,Cyclone,Chennai,Heavy winds uprooting trees,Resolved
+R003,U006,Earthquake,Delhi,Strong tremors felt early morning,Under Review
+R004,U003,Flood,Kolkata,Drainage overflow reported,Resolved
+R005,U008,Flood,Kerala,Coastal flooding in Alappuzha area,Pending
+R006,U009,Heatwave,Lucknow,High temperature causing illness,Under Review
+R007,U002,Cyclone,Odisha,Severe damage to houses,Resolved
+R008,U005,Flood,Assam,Roads blocked by water,Pending
+R009,U007,Heatwave,Jaipur,Extreme heat warning requested,Under Review
+R010,U010,Drought,Pune,Water shortage reported,Resolved
+11,1,Flood,Hadapsar,Heavy shit,Pending
+12,1,Flood,Hadapsar,1,Pending
+13,1,Flood,Hadapsar,Heavy,Pending

@@ -1,0 +1,11 @@
+guide_id,disaster_type,safety_measures,emergency_contacts
+G001,Flood,Move to higher ground and avoid bridges,National Disaster Helpline: 1078
+G002,Cyclone,Stay indoors and away from windows,State Emergency Helpline: 108
+G003,Earthquake,Take cover under sturdy furniture,National Disaster Management Authority: 011-26701728
+G004,Wildfire,Evacuate immediately and wear masks,Forest Fire Helpline: 1926
+G005,Landslide,Do not travel during heavy rains,State Disaster Response: 101
+G006,Heatwave,Stay hydrated and avoid outdoor work,Health Helpline: 104
+G007,Drought,Conserve water and avoid wastage,Water Helpline: 1800-212-3755
+G008,Thunderstorm,Unplug electronics and avoid trees,Emergency: 112
+G009,Tsunami,Move inland and avoid beaches,Coast Guard: 1554
+G010,General,Keep first-aid kit and emergency numbers handy,Emergency Helpline: 112
