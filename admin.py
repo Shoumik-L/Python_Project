@@ -8,79 +8,236 @@ import csv
 # ===================== FILE PATHS =====================
 DATA_DIR = "datasets"
 
+# Ensure datasets directory exists
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+
 DISASTER_FILE = os.path.join(DATA_DIR, "disasters.csv")
 WARNINGS_FILE = os.path.join(DATA_DIR, "warnings.csv")
 GUIDELINES_FILE = os.path.join(DATA_DIR, "guidelines.csv")
 REPORTS_FILE = os.path.join(DATA_DIR, "reports.csv")
 USERS_FILE = os.path.join(DATA_DIR, "users.csv")
 
+# Initialize files with headers if they don't exist
+def init_file(file_path, headers):
+    if not os.path.exists(file_path):
+        with open(file_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(headers)
+
+# Initialize all required files
+init_file(DISASTER_FILE, ["dis_id", "type", "region", "severity", "probability", "date"])
+init_file(WARNINGS_FILE, ["warn_id", "dis_id", "region", "status", "issue_date", "expiry_date"])
+init_file(GUIDELINES_FILE, ["guide_id", "disaster_type", "safety_measures", "emergency_contacts"])
+init_file(REPORTS_FILE, ["report_id", "date", "content", "severity"])
+init_file(USERS_FILE, ["user_id", "username", "password", "location"])
+
 # ===================== CUSTOM ID GENERATOR =====================
 
 def generate_custom_id(file_path, prefix):
     """Generate a new unique ID like D001, W002, etc."""
-    if not os.path.exists(file_path):
-        return f"{prefix}001"
-
-    with open(file_path, newline='') as f:
-        reader = csv.reader(f)
-        next(reader, None)  # skip header
-        ids = [row[0] for row in reader if row and row[0].startswith(prefix)]
-        if not ids:
+    try:
+        if not os.path.exists(file_path):
+            # Create file with header if it doesn't exist
+            with open(file_path, 'w', newline='') as f:
+                if prefix == 'D':
+                    writer = csv.writer(f)
+                    writer.writerow(["dis_id", "type", "region", "severity", "probability", "date"])
             return f"{prefix}001"
-        last_num = max(int(i[1:]) for i in ids)
-        return f"{prefix}{last_num + 1:03d}"
+
+        with open(file_path, newline='') as f:
+            reader = csv.reader(f)
+            next(reader, None)  # skip header
+            ids = [row[0] for row in reader if row and row[0].startswith(prefix)]
+            if not ids:
+                return f"{prefix}001"
+            last_num = max(int(i[1:]) for i in ids)
+            return f"{prefix}{last_num + 1:03d}"
+    except Exception as e:
+        print(f"❌ Error generating ID: {str(e)}")
+        raise
 
 # ===================== ADMIN LOGIN =====================
 
 def admin_login():
-    username = input("Enter admin username: ")
-    password = input("Enter admin password: ")
-    if username == "admin" and password == "admin123":
-        print("\n✅ Login successful!")
-        admin_menu()
-    else:
-        print("❌ Invalid credentials!")
+    try:
+        username = input("Enter admin username: ")
+        password = input("Enter admin password: ")
+        if username == "admin" and password == "admin123":
+            print("\n✅ Login successful!")
+            admin_menu()
+        else:
+            print("❌ Invalid credentials!")
+    except Exception as e:
+        print(f"❌ Error during login: {str(e)}")
 
 # ===================== ADMIN MENU =====================
 
 def admin_menu():
     while True:
-        print("\n--- Admin Menu ---")
-        print("1. Add Disaster Record")
-        print("2. Update/Delete Disaster")
-        print("3. Manage Warnings")
-        print("4. Generate Reports")
-        print("5. Manage Guidelines")
-        print("6. Logout")
+        try:
+            print("\n--- Admin Menu ---")
+            print("1. Add Disaster Record")
+            print("2. Update/Delete Disaster")
+            print("3. Manage Warnings")
+            print("4. Generate Reports")
+            print("5. Manage Guidelines")
+            print("6. Logout")
 
-        choice = input("Enter your choice: ")
+            choice = input("\nEnter your choice: ")
 
-        if choice == "1":
-            add_disaster()
-        elif choice == "2":
-            update_or_delete_disaster()
-        elif choice == "3":
-            manage_warnings()
-        elif choice == "4":
-            generate_reports()
-        elif choice == "5":
-            manage_guidelines()
-        elif choice == "6":
-            print("Logging out...")
-            break
-        else:
-            print("❌ Invalid choice. Try again!")
+            if choice == "1":
+                print("\n=== Add Disaster Record ===")
+                add_disaster()
+            elif choice == "2":
+                update_or_delete_disaster()
+            elif choice == "3":
+                manage_warnings()
+            elif choice == "4":
+                generate_reports()
+            elif choice == "5":
+                manage_guidelines()
+            elif choice == "6":
+                print("Logging out...")
+                break
+            else:
+                print("❌ Invalid choice. Try again!")
+                
+            # Add a pause after each operation
+            input("\nPress Enter to continue...")
+            
+        except Exception as e:
+            print(f"❌ Error in menu operation: {str(e)}")
+            input("\nPress Enter to continue...")
 
 # ===================== DISASTER CRUD =====================
 
+# ===================== VALIDATION FUNCTIONS =====================
+
+def validate_date(date_str):
+    """Validate date format YYYY-MM-DD"""
+    try:
+        if not date_str:
+            return False
+        datetime.strptime(date_str, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+    except Exception as e:
+        print(f"❌ Error validating date: {str(e)}")
+        return False
+
+def validate_severity(sev):
+    """Validate severity level"""
+    try:
+        if not sev:
+            return False
+        return sev.lower() in ['low', 'medium', 'high', 'severe', 'extreme']
+    except Exception as e:
+        print(f"❌ Error validating severity: {str(e)}")
+        return False
+
+def validate_probability(prob):
+    """Validate probability percentage"""
+    try:
+        if not prob:
+            return False
+        p = float(prob)
+        return 0 <= p <= 100
+    except ValueError:
+        return False
+    except Exception as e:
+        print(f"❌ Error validating probability: {str(e)}")
+        return False
+
 def add_disaster():
-    fieldnames = ["dis_id", "type", "region", "severity", "probability", "date"]
-    dis_id = generate_custom_id(DISASTER_FILE, "D")
-    dis_type = input("Enter Type (Flood, Earthquake, etc): ")
-    region = input("Enter Region: ")
-    severity = input("Enter Severity (Low/Med/High): ")
-    probability = input("Enter Probability (%): ")
-    date = input("Enter Date (YYYY-MM-DD): ")
+    """Add a new disaster record"""
+    try:
+        print("\nAdding new disaster record...")
+        fieldnames = ["dis_id", "type", "region", "severity", "probability", "date"]
+        
+        # First check if we can access the file
+        try:
+            dis_id = generate_custom_id(DISASTER_FILE, "D")
+            print(f"Generated ID: {dis_id}")
+        except Exception as e:
+            print(f"❌ Error accessing disaster file: {str(e)}")
+            return
+        
+        # Get disaster type
+        while True:
+            try:
+                dis_type = input("\nEnter Type (Flood, Earthquake, etc): ").strip()
+                if dis_type:
+                    break
+                print("❌ Type cannot be empty")
+            except Exception as e:
+                print(f"❌ Error reading input: {str(e)}")
+                return
+        
+        # Get region
+        while True:
+            try:
+                region = input("\nEnter Region: ").strip()
+                if region:
+                    break
+                print("❌ Region cannot be empty")
+            except Exception as e:
+                print(f"❌ Error reading input: {str(e)}")
+                return
+        
+        # Get severity
+        while True:
+            try:
+                severity = input("\nEnter Severity (Low/Medium/High/Severe/Extreme): ").strip()
+                if validate_severity(severity):
+                    severity = severity.capitalize()
+                    break
+                print("❌ Invalid severity level")
+            except Exception as e:
+                print(f"❌ Error reading input: {str(e)}")
+                return
+        
+        # Get probability
+        while True:
+            try:
+                probability = input("\nEnter Probability (0-100): ").strip()
+                if validate_probability(probability):
+                    probability = float(probability) / 100  # Convert to decimal
+                    break
+                print("❌ Invalid probability (must be between 0 and 100)")
+            except Exception as e:
+                print(f"❌ Error reading input: {str(e)}")
+                return
+        
+        # Get date
+        while True:
+            try:
+                date = input("\nEnter Date (YYYY-MM-DD): ").strip()
+                if validate_date(date):
+                    break
+                print("❌ Invalid date format (use YYYY-MM-DD)")
+            except Exception as e:
+                print(f"❌ Error reading input: {str(e)}")
+                return
+        
+        # Create the new disaster record
+        new_row = {
+            "dis_id": dis_id,
+            "type": dis_type,
+            "region": region,
+            "severity": severity,
+            "probability": str(probability),  # Convert to string for CSV
+            "date": date
+        }
+
+        # Append the new record
+        append_data(DISASTER_FILE, fieldnames, new_row)
+        print(f"\n✅ Disaster record added successfully with ID {dis_id}!")
+        
+    except Exception as e:
+        print(f"\n❌ Error adding disaster record: {str(e)}")
+        print("Please try again.")
 
     new_row = {
         "dis_id": dis_id,
@@ -139,11 +296,43 @@ def manage_warnings():
     choice = input("Enter your choice: ")
 
     if choice == '1':
-        dis_id = input("Enter Disaster ID: ").strip()
-        region = input("Enter Region: ").strip()
-        status = input("Enter Status (Active/Inactive): ").strip()
-        issue_date = input("Enter Issue Date (YYYY-MM-DD): ").strip()
-        expiry_date = input("Enter Expiry Date (YYYY-MM-DD): ").strip()
+        # First show available disasters
+        disasters = read_data(DISASTER_FILE)
+        if not disasters:
+            print("❌ No disasters available to create warnings for")
+            return
+        
+        print("\nAvailable Disasters:")
+        print(tabulate(disasters, headers="keys", tablefmt="grid"))
+        
+        while True:
+            dis_id = input("Enter Disaster ID: ").strip().upper()
+            disaster = next((d for d in disasters if d['dis_id'] == dis_id), None)
+            if disaster:
+                region = disaster['region']  # Use the region from disaster record
+                break
+            print("❌ Invalid Disaster ID")
+        
+        while True:
+            status = input("Enter Status (Active/Inactive/Expired): ").strip().capitalize()
+            if status in ['Active', 'Inactive', 'Expired']:
+                break
+            print("❌ Invalid status (must be Active, Inactive, or Expired)")
+        
+        while True:
+            issue_date = input("Enter Issue Date (YYYY-MM-DD): ").strip()
+            if validate_date(issue_date):
+                break
+            print("❌ Invalid date format (use YYYY-MM-DD)")
+        
+        while True:
+            expiry_date = input("Enter Expiry Date (YYYY-MM-DD): ").strip()
+            if validate_date(expiry_date):
+                if expiry_date > issue_date:
+                    break
+                print("❌ Expiry date must be after issue date")
+            else:
+                print("❌ Invalid date format (use YYYY-MM-DD)")
 
         updated = False
         rows = []
