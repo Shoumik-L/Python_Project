@@ -426,6 +426,166 @@ class DisasterManagementApp(ctk.CTk):
             font=ctk.CTkFont(size=20, weight="bold")
         ).pack(pady=20, padx=20)
 
+        # Create a tabview
+        tab_view = ctk.CTkTabview(parent_frame)
+        tab_view.pack(fill="both", expand=True, padx=20, pady=10)
+
+        # Add tabs
+        tab_view.add("Risk Analysis")
+        tab_view.add("Active Warnings")
+        tab_view.add("Summary")
+
+        # === Risk Analysis Tab ===
+        risk_frame = tab_view.tab("Risk Analysis")
+        
+        # Get high risk disasters
+        disasters = admin.read_data(admin.DISASTER_FILE)
+        if disasters:
+            try:
+                high_risk = [d for d in disasters if 
+                            (d.get('severity','').lower() in ['high', 'severe', 'extreme'] or 
+                             float(d.get('probability','0')) > 0.7)]
+            except Exception:
+                high_risk = []
+            
+            if high_risk:
+                risk_text = "High Risk Areas:\n\n"
+                for d in high_risk:
+                    risk_text += f"• {d.get('region','Unknown')} - {d.get('type','Unknown')}\n"
+                    try:
+                        prob_pct = float(d.get('probability',0)) * 100
+                    except Exception:
+                        prob_pct = 0.0
+                    risk_text += f"  Severity: {d.get('severity','')} , Probability: {prob_pct:.1f}%\n"
+                    risk_text += f"  Date: {d.get('date','')}\n\n"
+            else:
+                risk_text = "No high-risk areas identified."
+        else:
+            risk_text = "No disaster data available."
+        
+        risk_textbox = ctk.CTkTextbox(risk_frame, height=200)
+        risk_textbox.pack(fill="both", expand=True, padx=10, pady=10)
+        risk_textbox.insert("1.0", risk_text)
+        risk_textbox.configure(state="disabled")
+
+        # === Active Warnings Tab ===
+        warnings_frame = tab_view.tab("Active Warnings")
+        
+        # Get active warnings
+        warnings = admin.read_data(admin.WARNINGS_FILE)
+        if warnings:
+            active_warnings = [w for w in warnings if w.get('status','').lower() == 'active']
+            if active_warnings:
+                warnings_text = "Current Active Warnings:\n\n"
+                for w in active_warnings:
+                    warnings_text += f"• Warning ID: {w.get('warn_id','')}\n"
+                    warnings_text += f"  Region: {w.get('region','')}\n"
+                    warnings_text += f"  Issue Date: {w.get('issue_date','')}\n"
+                    warnings_text += f"  Expiry Date: {w.get('expiry_date','')}\n\n"
+            else:
+                warnings_text = "No active warnings at this time."
+        else:
+            warnings_text = "No warning data available."
+        
+        warnings_textbox = ctk.CTkTextbox(warnings_frame, height=200)
+        warnings_textbox.pack(fill="both", expand=True, padx=10, pady=10)
+        warnings_textbox.insert("1.0", warnings_text)
+        warnings_textbox.configure(state="disabled")
+
+        # === Summary Tab ===
+        summary_frame = tab_view.tab("Summary")
+        
+        if disasters:
+            # Calculate summary statistics
+            disaster_types = {}
+            regions = {}
+            severity_levels = {}
+            
+            for d in disasters:
+                # Count by type
+                dtype = d.get('type','Unknown')
+                disaster_types[dtype] = disaster_types.get(dtype, 0) + 1
+                
+                # Count by region
+                region = d.get('region','Unknown')
+                regions[region] = regions.get(region, 0) + 1
+                
+                # Count by severity
+                severity = d.get('severity','Unknown')
+                severity_levels[severity] = severity_levels.get(severity, 0) + 1
+            
+            summary_text = "Disaster Summary Statistics:\n\n"
+            
+            summary_text += "By Disaster Type:\n"
+            for dtype, count in disaster_types.items():
+                summary_text += f"• {dtype}: {count}\n"
+            
+            summary_text += "\nBy Region:\n"
+            for region, count in regions.items():
+                summary_text += f"• {region}: {count}\n"
+            
+            summary_text += "\nBy Severity Level:\n"
+            for severity, count in severity_levels.items():
+                summary_text += f"• {severity}: {count}\n"
+        else:
+            summary_text = "No disaster data available for summary."
+        
+        summary_textbox = ctk.CTkTextbox(summary_frame, height=200)
+        summary_textbox.pack(fill="both", expand=True, padx=10, pady=10)
+        summary_textbox.insert("1.0", summary_text)
+        summary_textbox.configure(state="disabled")
+
+        # Add export button at the bottom
+        def export_reports():
+            try:
+                # Create reports directory if it doesn't exist
+                if not os.path.exists("reports"):
+                    os.makedirs("reports")
+                
+                # Generate timestamp for filename
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"reports/disaster_report_{timestamp}.txt"
+                
+                with open(filename, "w", encoding='utf-8') as f:
+                    f.write("=== DISASTER MANAGEMENT SYSTEM REPORT ===\n\n")
+                    f.write("=== RISK ANALYSIS ===\n")
+                    f.write(risk_text)
+                    f.write("\n\n=== ACTIVE WARNINGS ===\n")
+                    f.write(warnings_text)
+                    f.write("\n\n=== SUMMARY STATISTICS ===\n")
+                    f.write(summary_text)
+                
+                # Also save as latest report
+                with open("reports/disaster_report_latest.txt", "w", encoding='utf-8') as f:
+                    f.write("=== DISASTER MANAGEMENT SYSTEM REPORT ===\n\n")
+                    f.write("=== RISK ANALYSIS ===\n")
+                    f.write(risk_text)
+                    f.write("\n\n=== ACTIVE WARNINGS ===\n")
+                    f.write(warnings_text)
+                    f.write("\n\n=== SUMMARY STATISTICS ===\n")
+                    f.write(summary_text)
+                
+                messagebox.showinfo("Success", f"Report exported successfully to {filename}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to export report: {str(e)}")
+
+        export_frame = ctk.CTkFrame(parent_frame)
+        export_frame.pack(fill="x", padx=20, pady=10)
+        
+        ctk.CTkButton(
+            export_frame,
+            text="Export Report",
+            command=export_reports
+        ).pack(side="left", padx=5, expand=True)
+        
+        ctk.CTkButton(
+            export_frame,
+            text="Print Report",
+            command=lambda: os.startfile("reports/disaster_report_latest.txt", "print") 
+                          if os.path.exists("reports/disaster_report_latest.txt") 
+                          else messagebox.showerror("Error", "No report file found to print.")
+        ).pack(side="right", padx=5, expand=True)
+
     def show_guidelines_form(self, parent_frame):
         """Show form for managing safety guidelines"""
         ctk.CTkLabel(
@@ -655,158 +815,7 @@ class DisasterManagementApp(ctk.CTk):
                 font=ctk.CTkFont(size=14)
             ).pack(pady=20)
 
-        # Create a tabview
-        tab_view = ctk.CTkTabview(parent_frame)
-        tab_view.pack(fill="both", expand=True, padx=20, pady=10)
-
-        # Add tabs
-        tab_view.add("Risk Analysis")
-        tab_view.add("Active Warnings")
-        tab_view.add("Summary")
-
-        # === Risk Analysis Tab ===
-        risk_frame = tab_view.tab("Risk Analysis")
         
-        # Get high risk disasters
-        disasters = admin.read_data(admin.DISASTER_FILE)
-        if disasters:
-            high_risk = [d for d in disasters if 
-                        (d['severity'].lower() in ['high', 'severe', 'extreme'] or 
-                         float(d['probability']) > 0.7)]
-            
-            if high_risk:
-                risk_text = "High Risk Areas:\n\n"
-                for d in high_risk:
-                    risk_text += f"• {d['region']} - {d['type']}\n"
-                    risk_text += f"  Severity: {d['severity']}, Probability: {float(d['probability'])*100:.1f}%\n"
-                    risk_text += f"  Date: {d['date']}\n\n"
-            else:
-                risk_text = "No high-risk areas identified."
-        else:
-            risk_text = "No disaster data available."
-        
-        risk_textbox = ctk.CTkTextbox(risk_frame, height=200)
-        risk_textbox.pack(fill="both", expand=True, padx=10, pady=10)
-        risk_textbox.insert("1.0", risk_text)
-        risk_textbox.configure(state="disabled")
-
-        # === Active Warnings Tab ===
-        warnings_frame = tab_view.tab("Active Warnings")
-        
-        # Get active warnings
-        warnings = admin.read_data(admin.WARNINGS_FILE)
-        if warnings:
-            active_warnings = [w for w in warnings if w['status'].lower() == 'active']
-            if active_warnings:
-                warnings_text = "Current Active Warnings:\n\n"
-                for w in active_warnings:
-                    warnings_text += f"• Warning ID: {w['warn_id']}\n"
-                    warnings_text += f"  Region: {w['region']}\n"
-                    warnings_text += f"  Issue Date: {w['issue_date']}\n"
-                    warnings_text += f"  Expiry Date: {w['expiry_date']}\n\n"
-            else:
-                warnings_text = "No active warnings at this time."
-        else:
-            warnings_text = "No warning data available."
-        
-        warnings_textbox = ctk.CTkTextbox(warnings_frame, height=200)
-        warnings_textbox.pack(fill="both", expand=True, padx=10, pady=10)
-        warnings_textbox.insert("1.0", warnings_text)
-        warnings_textbox.configure(state="disabled")
-
-        # === Summary Tab ===
-        summary_frame = tab_view.tab("Summary")
-        
-        if disasters:
-            # Calculate summary statistics
-            disaster_types = {}
-            regions = {}
-            severity_levels = {}
-            
-            for d in disasters:
-                # Count by type
-                dtype = d['type']
-                disaster_types[dtype] = disaster_types.get(dtype, 0) + 1
-                
-                # Count by region
-                region = d['region']
-                regions[region] = regions.get(region, 0) + 1
-                
-                # Count by severity
-                severity = d['severity']
-                severity_levels[severity] = severity_levels.get(severity, 0) + 1
-            
-            summary_text = "Disaster Summary Statistics:\n\n"
-            
-            summary_text += "By Disaster Type:\n"
-            for dtype, count in disaster_types.items():
-                summary_text += f"• {dtype}: {count}\n"
-            
-            summary_text += "\nBy Region:\n"
-            for region, count in regions.items():
-                summary_text += f"• {region}: {count}\n"
-            
-            summary_text += "\nBy Severity Level:\n"
-            for severity, count in severity_levels.items():
-                summary_text += f"• {severity}: {count}\n"
-        else:
-            summary_text = "No disaster data available for summary."
-        
-        summary_textbox = ctk.CTkTextbox(summary_frame, height=200)
-        summary_textbox.pack(fill="both", expand=True, padx=10, pady=10)
-        summary_textbox.insert("1.0", summary_text)
-        summary_textbox.configure(state="disabled")
-
-        # Add export button at the bottom
-        def export_reports():
-            try:
-                # Create reports directory if it doesn't exist
-                if not os.path.exists("reports"):
-                    os.makedirs("reports")
-                
-                # Generate timestamp for filename
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"reports/disaster_report_{timestamp}.txt"
-                
-                with open(filename, "w") as f:
-                    f.write("=== DISASTER MANAGEMENT SYSTEM REPORT ===\n\n")
-                    f.write("=== RISK ANALYSIS ===\n")
-                    f.write(risk_text)
-                    f.write("\n\n=== ACTIVE WARNINGS ===\n")
-                    f.write(warnings_text)
-                    f.write("\n\n=== SUMMARY STATISTICS ===\n")
-                    f.write(summary_text)
-                
-                # Also save as latest report
-                with open("reports/disaster_report_latest.txt", "w") as f:
-                    f.write("=== DISASTER MANAGEMENT SYSTEM REPORT ===\n\n")
-                    f.write("=== RISK ANALYSIS ===\n")
-                    f.write(risk_text)
-                    f.write("\n\n=== ACTIVE WARNINGS ===\n")
-                    f.write(warnings_text)
-                    f.write("\n\n=== SUMMARY STATISTICS ===\n")
-                    f.write(summary_text)
-                
-                messagebox.showinfo("Success", f"Report exported successfully to {filename}")
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to export report: {str(e)}")
-
-        export_frame = ctk.CTkFrame(parent_frame)
-        export_frame.pack(fill="x", padx=20, pady=10)
-        
-        ctk.CTkButton(
-            export_frame,
-            text="Export Report",
-            command=export_reports
-        ).pack(side="left", padx=5, expand=True)
-        
-        ctk.CTkButton(
-            export_frame,
-            text="Print Report",
-            command=lambda: os.startfile("reports/disaster_report_latest.txt", "print") 
-                          if os.path.exists("reports/disaster_report_latest.txt") 
-                          else messagebox.showerror("Error", "No report file found to print.")
-        ).pack(side="right", padx=5, expand=True)
             
     def show_add_disaster_form(self, parent_frame):
         """Show form for adding a new disaster"""
