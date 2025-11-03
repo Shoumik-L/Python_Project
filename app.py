@@ -1163,17 +1163,50 @@ class DisasterManagementApp(ctk.CTk):
             nonlocal selected_disaster
             selected_disaster = disaster
             for field, entry in entries.items():
-                if field != "probability":
-                    entry.delete(0, 'end')
-                    entry.insert(0, disaster[field])
+                # Probability needs conversion from stored decimal to percent
+                if field == "probability":
+                    try:
+                        prob = float(disaster.get(field, 0)) * 100
+                    except Exception:
+                        prob = 0.0
+                    try:
+                        entry.delete(0, 'end')
+                        entry.insert(0, str(prob))
+                    except Exception:
+                        # If entry doesn't support delete/insert, ignore
+                        pass
+
+                # Severity is an OptionMenu: set the selected value rather than using Entry methods
+                elif field == "severity":
+                    try:
+                        # CTkOptionMenu has a .set() method to change the selection
+                        entry.set(disaster.get(field, ""))
+                    except Exception:
+                        # Fallback: try configuring values or ignore
+                        try:
+                            entry.configure(values=[disaster.get(field, "")])
+                        except Exception:
+                            pass
+
                 else:
-                    prob = float(disaster[field]) * 100
-                    entry.delete(0, 'end')
-                    entry.insert(0, str(prob))
-            
-            # Enable the form fields and buttons
+                    try:
+                        entry.delete(0, 'end')
+                        entry.insert(0, disaster.get(field, ""))
+                    except Exception:
+                        # Widget may not support delete/insert (be defensive)
+                        try:
+                            entry.set(disaster.get(field, ""))
+                        except Exception:
+                            pass
+
+            # Enable the form fields and buttons (be defensive about widget types)
             for entry in entries.values():
-                entry.configure(state="normal")
+                try:
+                    entry.configure(state="normal")
+                except Exception:
+                    # Some widgets may not support state change; ignore
+                    pass
+
             update_btn.configure(state="normal")
             delete_btn.configure(state="normal")
 
