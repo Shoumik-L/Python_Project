@@ -1,0 +1,140 @@
+=== DISASTER MANAGEMENT SYSTEM REPORT ===
+
+=== RISK ANALYSIS ===
+High Risk Areas:
+
+• Mumbai - Flood
+  Severity: High , Probability: 85.0%
+  Date: 2025-06-10
+
+• Odisha - Cyclone
+  Severity: Severe , Probability: 90.0%
+  Date: 2025-07-21
+
+• Delhi - Earthquake
+  Severity: Extreme , Probability: 95.0%
+  Date: 2025-08-14
+
+• Uttarakhand - Landslide
+  Severity: High , Probability: 78.0%
+  Date: 2025-09-02
+
+• Tamil Nadu - Cyclone
+  Severity: Severe , Probability: 88.0%
+  Date: 2025-10-05
+
+• Gujarat - Earthquake
+  Severity: Extreme , Probability: 93.0%
+  Date: 2025-01-11
+
+• Rajasthan - Heatwave
+  Severity: High , Probability: 82.0%
+  Date: 2025-05-30
+
+• Assam - Flood
+  Severity: Severe , Probability: 90.0%
+  Date: 2025-06-28
+
+• West Bengal - Cyclone
+  Severity: High , Probability: 80.0%
+  Date: 2025-07-10
+
+• Nepal Border - Earthquake
+  Severity: Extreme , Probability: 96.0%
+  Date: 2025-09-18
+
+• Sikkim - Landslide
+  Severity: High , Probability: 77.0%
+  Date: 2025-08-25
+
+• Kerala - Flood
+  Severity: High , Probability: 83.0%
+  Date: 2025-09-09
+
+• Kashmir - NO
+  Severity: High , Probability: 50.0%
+  Date: 2025-11-30
+
+
+
+=== ACTIVE WARNINGS ===
+Current Active Warnings:
+
+• Warning ID: W001
+  Region: Mumbai
+  Issue Date: 2025-06-05
+  Expiry Date: 2025-06-15
+
+• Warning ID: W003
+  Region: Delhi
+  Issue Date: 2025-08-10
+  Expiry Date: 2025-08-20
+
+• Warning ID: W007
+  Region: Nepal Border
+  Issue Date: 2025-09-15
+  Expiry Date: 2025-09-22
+
+• Warning ID: W008
+  Region: Kerala
+  Issue Date: 2025-09-07
+  Expiry Date: 2025-09-17
+
+• Warning ID: W009
+  Region: Kashmir
+  Issue Date: 2025-11-18
+  Expiry Date: 2025-11-28
+
+• Warning ID: W010
+  Region: Hadapsar
+  Issue Date: 2025-05-25
+  Expiry Date: 2025-06-02
+
+• Warning ID: W011
+  Region: Banglore
+  Issue Date: 2025-12-02
+  Expiry Date: 2025-12-31
+
+
+
+=== SUMMARY STATISTICS ===
+Disaster Summary Statistics:
+
+By Disaster Type:
+• Flood: 4
+• Cyclone: 3
+• Earthquake: 3
+• Wildfire: 3
+• Landslide: 2
+• Heatwave: 2
+• Drought: 2
+• NO: 1
+
+By Region:
+• Mumbai: 1
+• Odisha: 1
+• Delhi: 1
+• Himachal Pradesh: 1
+• Uttarakhand: 1
+• Kolkata: 1
+• Tamil Nadu: 1
+• Gujarat: 1
+• Rajasthan: 1
+• Maharashtra: 1
+• Madhya Pradesh: 1
+• Assam: 1
+• West Bengal: 1
+• Nepal Border: 1
+• Uttar Pradesh: 1
+• Sikkim: 1
+• Kerala: 1
+• Telangana: 1
+• Goa: 1
+• Kashmir: 1
+
+By Severity Level:
+• High: 7
+• Severe: 3
+• Extreme: 3
+• Medium: 5
+• Low: 2
